@@ -11,10 +11,10 @@ from astropy.io import fits
 print(fits)
 
 import os, sys
-os.chdir("/Users/mayragutierrez/keckAOSim/keckSim")
+os.chdir("/home/lab/maygut/keckAOSim/keckSim")
 sys.path.insert(0, os.path.join(os.getcwd(), "simulations_codes"))
-os.environ["OOPAO_PATH"]="/Users/mayragutierrez/OOPAO"
-sys.path.insert(0, "/Users/mayragutierrez/OOPAO")
+os.environ["OOPAO_PATH"]="/home/lab/maygut/OOPAO"
+sys.path.insert(0, "/home/lab/maygut/OOPAO")
 #sys.path.insert(0, os.getcwd())
 
 from OOPAO.calibration.getFittingError import *

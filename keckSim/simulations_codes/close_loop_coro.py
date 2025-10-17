@@ -303,7 +303,7 @@ def close_loop(AO_sys, atm_seed=0):
     plt.close()
 
     # timestamp like original code
-    save_dir = "/Users/mayragutierrez/keckAOSim/keckSim/simulations_codes/MGDATA"
+    save_dir = "/home/lab/maygut/keckAOSim/keckSim/simulations_codes/MGDATA"
     mytime = str(time.time()).replace('.', '')
     
     # save coronagraphic PSF
@@ -317,7 +317,6 @@ def close_loop(AO_sys, atm_seed=0):
     hdul = fits.HDUList([hdu])
     hdul.writeto(f'{save_dir}/L_current_psf_120nm_mag{param["magnitude_guide"]}_{mytime}_20s_sum.fits',
                  overwrite=True)
-    
-    # save Strehl history
+        # save Strehl history
     np.save(f'{save_dir}/strehl_K_current_120nm_mag{param["magnitude_guide"]}_{mytime}.npy', np.array(SR))
     return output #, L_psf, L_coro

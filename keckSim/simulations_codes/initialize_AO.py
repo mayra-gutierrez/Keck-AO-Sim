@@ -332,7 +332,7 @@ def initialize_AO_hardware(param):
     if param['M1_segments_pistons']==True and param['M1_segments_tilts']==False:
         print(param['M1_segments_pistons'])
 
-        with open('/Users/mayragutierrez/keckAOSim/keckSim/simulations_codes/OPD_120nm_file.pkl', 'rb') as f:
+        with open('/home/lab/maygut/keckAOSim/keckSim/simulations_codes/OPD_120nm_file.pkl', 'rb') as f:
             opd_from_file = pickle.load(f)
 
         print(f"Loaded OPD file with shape: {np.shape(opd_from_file)}")

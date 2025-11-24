@@ -20,7 +20,7 @@ def initializeParameterFile():
     ###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TELESCOPE PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     param['diameter'             ] = 10.95  # diameter in [m]
-    param['resolution'           ] = 480 #336    # resolution of the telescope driven by the PWFS
+    param['resolution'           ] = 480  #480 #336    # resolution of the telescope driven by the PWFS
     param['numberSegments'       ] = 36     # number of segments
     param['samplingTime'         ] = 1/1000  # loop sampling time in [s] == AO Loop frequency
     param['centralObstruction'   ] = 0.2356 # central obstruction in percentage of the diameter
@@ -56,11 +56,11 @@ def initializeParameterFile():
 
     ###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% NGS PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     param['magnitude_guide'      ] = 5 #8      # magnitude of the guide star
-    param['opticalBand_guide'    ] = 'R'    # optical band of the guide star
+    param['opticalBand_guide'    ] = 'V'    # optical band of the guide star
     param['ngs_coordinate'       ] = [0,0]  # coordinate of the target in mas
     
     param['science_magnitude'    ] = 5      # magnitude of the guide star
-    param['science_opticalBand'  ] = 'K'    # optical band of the guide star
+    param['science_opticalBand'  ] = 'L'    # optical band of the guide star
     param['science_coordinate'   ] = [0,0]  # coordinate of the target in mas
     
     ###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SH PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,7 +74,7 @@ def initializeParameterFile():
     param['binning'              ] = 0     # binning of the detctor
    
     ###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SH dectector PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    param['detector_wfs'         ] = None
+    param['detector_wfs'         ] = None    #None means CCD
     param['photonNoise'          ] = True 	# to enable photon noise
     param['ron'                  ] = 0.5  	# value of the RON in e/pix/frame
     param['darkCurrent'          ] = 0    	# dark current in e/pix/frame

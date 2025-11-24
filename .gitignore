@@ -1,0 +1,17 @@
+# Ignore large data
+*.fits
+*.npy
+
+# Python cache
+__pycache__/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Swap files
+*.swp
+
+# Logs
+*.log
+logs/
+run_log.txt

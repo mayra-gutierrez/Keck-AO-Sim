@@ -350,7 +350,9 @@ def initialize_AO_hardware(param):
         '''
         #seg_amp = param['M1_OPD_amplitude']
         #default_shape = opd_phasing/cophase_amp * seg_amp
+        from skimage.transform import resize
 
+        opd_from_file = resize(opd_from_file, tel.pupil.shape, preserve_range=True)
         opd_from_file = opd_from_file * tel.pupil
 
         opd_M1 = OPD_map(telescope=tel)

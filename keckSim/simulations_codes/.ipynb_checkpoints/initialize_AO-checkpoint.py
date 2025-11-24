@@ -332,7 +332,7 @@ def initialize_AO_hardware(param):
     if param['M1_segments_pistons']==True and param['M1_segments_tilts']==False:
         print(param['M1_segments_pistons'])
 
-        with open('/Users/mayragutierrez/keckAOSim/keckSim/simulations_codes/OPD_120nm_file.pkl', 'rb') as f:
+        with open('/home/lab/maygut/keckAOSim/keckSim/simulations_codes/OPD_120nm_file.pkl', 'rb') as f:
             opd_from_file = pickle.load(f)
 
         print(f"Loaded OPD file with shape: {np.shape(opd_from_file)}")
@@ -350,7 +350,9 @@ def initialize_AO_hardware(param):
         '''
         #seg_amp = param['M1_OPD_amplitude']
         #default_shape = opd_phasing/cophase_amp * seg_amp
+        from skimage.transform import resize
 
+        opd_from_file = resize(opd_from_file, tel.pupil.shape, preserve_range=True)
         opd_from_file = opd_from_file * tel.pupil
 
         opd_M1 = OPD_map(telescope=tel)

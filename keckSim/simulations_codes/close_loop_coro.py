@@ -1,12 +1,19 @@
 import numpy as np
 import time
+from datetime import datetime
 from astropy.io import fits
 import matplotlib.pyplot as plt
 from hcipy import *
-
+import random
+import os
 from OOPAO.calibration.getFittingError import *
 
-def close_loop(AO_sys, atm_seed=0):
+
+def close_loop(AO_sys, Name, atm_seed=None):
+    if atm_seed is None:
+        atm_seed = hash((os.getpid(), time.time())) % 2**32
+    np.random.seed(atm_seed)
+    
     param = AO_sys.param
     type_rec = param['type_rec'] 
     display = param['display_loop']
@@ -226,9 +233,9 @@ def close_loop(AO_sys, atm_seed=0):
         new_sci_wf = wf_sci_template.copy()
         zero_padded_OPD = np.reshape(np.pad(AO_sys.tel.mean_removed_OPD, pad_amount, pad_with), len(new_sci_wf.electric_field))
 
-        new_sci_wf.electric_field *= np.exp(1j * zero_padded_OPD * (2*np.pi) / wavelength)
+        new_sci_wf.electric_field *= np.exp(1j * zero_padded_OPD * (2*np.pi) / wavelength_L)
         new_sci_wf.total_power = np.sum(AO_sys.science_detector.frame)
-        print("AO_sys has attributes:", dir(AO_sys))
+        #print("AO_sys has attributes:", dir(AO_sys))
         #print(f"OOPAO total power = {np.sum(AO_sys.science_detector.frame):.3e}")
         #print(f"HCIPy total power (after rescaling) = {new_sci_wf.total_power:.3e}")
 
@@ -251,11 +258,36 @@ def close_loop(AO_sys, atm_seed=0):
         if param['print_display']:
             print('Loop' + str(i) + '/' + str(nLoop) + ' Turbulence: ' + str(total[i]) + ' -- Residual:' +
                 str(residual[i]) + ' -- Fitting:' + str(fitting_rms[i]) + ' -- SR:' + str(SR[i])+ '\n')
+    
+        if i % 1000 == 0:
+            save_dir = "/home/lab/maygut/keckAOSim/keckSim/simulations_codes/MGDATA"
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # plot the residual and the SR in the science band
+            # Log checkpoint
+            with open(f"{save_dir}/checkpoint_log.txt", "a") as log:
+                      log.write(f"[{timestamp}] Run {Name}: saved intermediate results at iteration {i}\n")
+
+            # Save coronagraphic PSF
+            hdu = fits.PrimaryHDU(np.sum(L_coro, axis=0))
+            hdul = fits.HDUList([hdu])
+            hdul.writeto(f"{save_dir}/L_HAKA_coro_120nm_mag{param['magnitude_guide']}_run{Name}_intermediate_20s.fits",
+                         overwrite=True)
+
+            # Save non-coro PSF
+            hdu = fits.PrimaryHDU(np.sum(L_psf, axis=0))
+            hdul = fits.HDUList([hdu])
+            hdul.writeto(f"{save_dir}/L_HAKA_psf_120nm_mag{param['magnitude_guide']}_run{Name}_intermediate_20s.fits",
+                          overwrite=True)
+
+            # Save Strehl history
+            np.save(f"{save_dir}/strehl_K_HAKA_120nm_mag{param['magnitude_guide']}_run{Name}_intermediate_20s.npy",
+                    np.array(SR))
+
+     # plot the residual and the SR in the science band
     if param['print_display']:
         print('Average SR = %d\n', np.mean(SR[50:]*100))
-
+    
+    '''
     PSF_LE = np.mean(SRC_PSF, axis=0)
     PSF_LE_norm = PSF_LE / np.max(PSF_LE)
 
@@ -299,7 +331,7 @@ def close_loop(AO_sys, atm_seed=0):
     else:
         print("PSF_LE has no shape")
 
-
+    '''
     plt.close()
 
     # timestamp like original code
@@ -309,14 +341,16 @@ def close_loop(AO_sys, atm_seed=0):
     # save coronagraphic PSF
     hdu = fits.PrimaryHDU(np.sum(L_coro, axis=0))   # assuming PSF_LE_coro is built in loop
     hdul = fits.HDUList([hdu])
-    hdul.writeto(f'{save_dir}/L_current_coro_120nm_mag{param["magnitude_guide"]}_{mytime}_20s_sum.fits',
+    hdul.writeto(f'{save_dir}/L_HAKA_coro_120nm_mag{param["magnitude_guide"]}_{mytime}_run{Name}_20s_sum.fits',
                  overwrite=True)
     
     # save non-coro PSF
     hdu = fits.PrimaryHDU(np.sum(L_psf, axis=0))
     hdul = fits.HDUList([hdu])
-    hdul.writeto(f'{save_dir}/L_current_psf_120nm_mag{param["magnitude_guide"]}_{mytime}_20s_sum.fits',
+    hdul.writeto(f'{save_dir}/L_HAKA_psf_120nm_mag{param["magnitude_guide"]}_{mytime}_run{Name}_20s_sum.fits',
                  overwrite=True)
         # save Strehl history
-    np.save(f'{save_dir}/strehl_K_current_120nm_mag{param["magnitude_guide"]}_{mytime}.npy', np.array(SR))
+    np.save(f'{save_dir}/strehl_K_HAKA_120nm_mag{param["magnitude_guide"]}_{mytime}_run{Name}.npy', np.array(SR))
+
+    output = {'PSF_LE': np.mean(L_psf, axis=0), 'PSF_coro': np.mean(L_coro, axis=0), 'SR': SR, 'residual': residual}
     return output #, L_psf, L_coro

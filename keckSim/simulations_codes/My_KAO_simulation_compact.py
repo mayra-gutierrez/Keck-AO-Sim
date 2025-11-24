@@ -1,5 +1,6 @@
 #%%
 import time
+from datetime import datetime
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,6 +31,10 @@ from initialize_AO import initialize_AO_hardware
 import close_loop_coro
 from close_loop_coro import close_loop
 importlib.reload(close_loop_coro)
+import multiprocessing as mp
+from multiprocessing import Pool
+#mp.set_start_method("spawn", force=True)
+from threadpoolctl import threadpool_limits
 
 # %% -----------------------     Import system  ----------------------------------
 
@@ -85,10 +90,50 @@ plt.figure(), plt.imshow(PSF_ncpa[size_psf-wind:size_psf+wind,size_psf-wind:size
 KAO.param['print_display'] =True
 KAO.param['nLoop']=20000
 
-AO_output_modal = close_loop(KAO)
-SR_mode = AO_output_modal['SR']
-res_mode = AO_output_modal['residual']
-PSF_LE_mode = AO_output_modal['PSF_LE']
+def run_loop(Name):
+
+    start_time = datetime.now()
+    with open("run_log.txt", "a") as log:
+        log.write(f"[{start_time:%Y-%m-%d %H:%M:%S}] START process {Name}\n")
+
+    print(f"[{start_time:%Y-%m-%d %H:%M:%S}] Starting process {Name}")
+    AO_output_modal = close_loop(KAO,Name)
+    SR_mode = AO_output_modal['SR']
+    res_mode = AO_output_modal['residual']
+    PSF_LE_mode = AO_output_modal['PSF_LE']
+    
+    end_time = datetime.now()
+    elapsed = end_time - start_time
+
+    with open("run_log.txt", "a") as log:
+        log.write(f"[{end_time:%Y-%m-%d %H:%M:%S}] END process {Name} | Elapsed: {elapsed}\n")
+
+    print(f"[{end_time:%Y-%m-%d %H:%M:%S}] Finished process {Name} (elapsed: {elapsed})")
+
+
+
+def run_loop_single_threaded(x):
+    with threadpool_limits(limits=1):
+        run_loop(x)
+
+N = 15
+
+with Pool(N) as p:
+    p.map(run_loop_single_threaded, range(N))
+
+'''
+if __name__ == "__main__":
+    
+    N = 10
+
+    def run_loop_single_threaded(x):
+        with threadpool_limits(limits=1):
+            run_loop(x)
+
+    with mp.Pool(N) as p:
+        p.map(run_loop_single_threaded, range(N))
+
+'''
 
 '''
 KAO.param['type_rec'] = 'keck'
@@ -97,5 +142,3 @@ SR = AO_output_keck['SR']
 res = AO_output_keck['residual']
 PSF_LE = AO_output_keck['PSF_LE']
 '''
-
-

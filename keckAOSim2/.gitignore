@@ -1,0 +1,28 @@
+# Ignore numpy arrays
+*.npy
+*.npz
+
+# Ignore FITS files
+*.fits
+*.fit
+*.fts
+
+# Ignore text data files
+*.txt
+
+# Ignore data files
+*.lsp
+*.map
+
+# If you want to ignore all files in a data/ directory
+data/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.cpython-311.pyc
+
+# Editor backup files
+*~
+\#*#
+
